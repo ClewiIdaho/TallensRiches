@@ -346,6 +346,47 @@ label {
 .entry-item .entry-amount.income { color: var(--green); }
 .entry-item .entry-amount.bill   { color: var(--red); }
 
+/* Inline delete button on entries */
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 79, 110, 0.1);
+  color: var(--red);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 10px;
+  flex-shrink: 0;
+  transition: all var(--transition);
+  opacity: 0.6;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 79, 110, 0.25);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+@media (pointer: coarse) {
+  .delete-btn {
+    opacity: 0.8;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+}
+
 .category-badge {
   display: inline-block;
   padding: 2px 8px;

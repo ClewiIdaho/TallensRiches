@@ -139,6 +139,7 @@
           <span class="entry-meta">${fmtDate(parseDate(e.date))}</span>
         </div>
         <span class="entry-amount income">${usd(e.amount)}</span>
+        <button class="delete-btn" data-delete-id="${e.id}" data-delete-type="income" title="Delete">&times;</button>
       </li>
     `).join('');
   }
@@ -159,6 +160,7 @@
             <span class="entry-meta">${fmtDate(parseDate(e.dueDate))}</span>
           </div>
           <span class="entry-amount bill">${usd(e.amount)}</span>
+          <button class="delete-btn" data-delete-id="${e.id}" data-delete-type="bill" title="Delete">&times;</button>
         </li>`;
     }).join('');
   }
@@ -459,8 +461,20 @@
     billForm.reset();
   });
 
-  // Click on an entry item → open modal
+  // Click inline delete button → delete entry directly
   document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    const id   = btn.dataset.deleteId;
+    const type = btn.dataset.deleteType;
+    if (type === 'income') deleteIncome(id);
+    else deleteBill(id);
+  });
+
+  // Click on an entry item → open modal for editing
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.delete-btn')) return;
     const item = e.target.closest('[data-id][data-type]');
     if (!item) return;
     openModal(item.dataset.type, item.dataset.id);
