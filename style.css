@@ -1,1 +1,710 @@
+/* ============================================================
+   Tallens Riches — Style Sheet
+   Deep dark theme · Glassmorphism · Electric purple accents
+   ============================================================ */
 
+/* --- CSS Custom Properties --- */
+:root {
+  --purple: #9b5cff;
+  --purple-dim: #7a3fe0;
+  --purple-glow: rgba(155, 92, 255, 0.45);
+  --purple-soft: rgba(155, 92, 255, 0.15);
+  --bg-dark: #0a0a0f;
+  --bg-gradient: linear-gradient(145deg, #0a0a0f 0%, #12101e 50%, #0a0a0f 100%);
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --text-primary: #f0eef6;
+  --text-secondary: #a8a3b8;
+  --text-dim: #6e6a7e;
+  --green: #3de8a0;
+  --red: #ff4f6e;
+  --yellow: #ffcb47;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 250ms ease;
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background: var(--bg-dark);
+  background-image: var(--bg-gradient);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  /* Faint noise overlay via repeating gradient (no external dependency) */
+  background-attachment: fixed;
+}
+
+/* Subtle noise texture overlay on body */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(155, 92, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(155, 92, 255, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --- Glass Panel (shared component) --- */
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 var(--glass-highlight);
+  position: relative;
+  transition: box-shadow var(--transition);
+}
+
+.glass-panel:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 var(--glass-highlight),
+    0 0 20px var(--purple-soft);
+}
+
+.glass-panel h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 18px;
+}
+
+/* --- Header --- */
+.app-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 0 0 20px var(--purple-glow);
+}
+
+.logo span {
+  color: var(--purple);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--purple);
+  color: #fff;
+  box-shadow: 0 0 16px var(--purple-glow);
+}
+
+.btn-primary:hover {
+  background: var(--purple-dim);
+  box-shadow: 0 0 24px var(--purple-glow);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--glass-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(8px);
+}
+
+.btn-secondary:hover {
+  background: var(--glass-highlight);
+  color: var(--text-primary);
+  box-shadow: 0 0 12px var(--purple-soft);
+}
+
+.btn-danger {
+  background: rgba(255, 79, 110, 0.15);
+  color: var(--red);
+  border: 1px solid rgba(255, 79, 110, 0.25);
+}
+
+.btn-danger:hover {
+  background: rgba(255, 79, 110, 0.25);
+  box-shadow: 0 0 12px rgba(255, 79, 110, 0.3);
+}
+
+/* --- Form Inputs --- */
+select,
+input[type="text"],
+input[type="number"],
+input[type="date"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+select:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 8px var(--purple-soft);
+}
+
+/* Date input calendar icon color fix for dark bg */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+}
+
+label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.header-actions select {
+  width: auto;
+  min-width: 130px;
+}
+
+/* --- Entry Form Layout --- */
+.entry-form {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.entry-form .btn-primary {
+  margin-top: 4px;
+}
+
+/* --- Entry List (income / bill items) --- */
+.entry-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Scrollbar styling */
+.entry-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.entry-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.entry-list::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 10px;
+}
+
+.entry-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.entry-item:hover {
+  background: rgba(155, 92, 255, 0.06);
+  border-color: rgba(155, 92, 255, 0.2);
+}
+
+.entry-item .entry-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.entry-item .entry-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.entry-item .entry-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.entry-item .entry-amount {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.entry-item .entry-amount.income {
+  color: var(--green);
+}
+
+.entry-item .entry-amount.bill {
+  color: var(--red);
+}
+
+/* Category badge */
+.category-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: var(--purple-soft);
+  color: var(--purple);
+  margin-left: 6px;
+}
+
+/* --- Dashboard Layout --- */
+.dashboard {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.col-left,
+.col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* --- Breakdown Container --- */
+.breakdown-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pay-period-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.pay-period-card:hover {
+  border-color: rgba(155, 92, 255, 0.3);
+  box-shadow: 0 0 14px var(--purple-soft);
+}
+
+.pay-period-card.expanded {
+  border-color: var(--purple);
+}
+
+.pay-period-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.pay-period-header .period-dates {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pay-period-header .period-income {
+  font-size: 0.85rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.pay-period-summary {
+  display: flex;
+  gap: 20px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.pay-period-summary span {
+  font-weight: 600;
+}
+
+/* Remaining balance bar */
+.remaining-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.remaining-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width var(--transition);
+}
+
+.remaining-bar-fill.positive {
+  background: var(--green);
+}
+
+.remaining-bar-fill.negative {
+  background: var(--red);
+}
+
+/* Bills detail inside expanded pay period */
+.pay-period-bills {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pay-period-bills.hidden {
+  display: none;
+}
+
+.period-bill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.period-bill-row .bill-label {
+  color: var(--text-secondary);
+}
+
+.period-bill-row .bill-amt {
+  font-weight: 600;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+
+.period-bill-remaining {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* --- Timeline --- */
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.timeline-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 10px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid transparent;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.timeline-item:hover {
+  background: rgba(155, 92, 255, 0.06);
+}
+
+/* Status colors */
+.timeline-item.upcoming {
+  border-left-color: var(--purple);
+}
+
+.timeline-item.due-soon {
+  border-left-color: var(--yellow);
+}
+
+.timeline-item.past-due {
+  border-left-color: var(--red);
+}
+
+.timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.upcoming .timeline-dot {
+  background: var(--purple);
+  box-shadow: 0 0 8px var(--purple-glow);
+}
+
+.due-soon .timeline-dot {
+  background: var(--yellow);
+  box-shadow: 0 0 8px rgba(255, 203, 71, 0.4);
+}
+
+.past-due .timeline-dot {
+  background: var(--red);
+  box-shadow: 0 0 8px rgba(255, 79, 110, 0.4);
+}
+
+.timeline-info {
+  flex: 1;
+}
+
+.timeline-info .tl-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.timeline-info .tl-date {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.timeline-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-status {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.upcoming .timeline-status {
+  background: var(--purple-soft);
+  color: var(--purple);
+}
+
+.due-soon .timeline-status {
+  background: rgba(255, 203, 71, 0.15);
+  color: var(--yellow);
+}
+
+.past-due .timeline-status {
+  background: rgba(255, 79, 110, 0.15);
+  color: var(--red);
+}
+
+/* --- Summary Bar --- */
+.summary-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  padding: 18px 32px;
+  background: rgba(10, 10, 15, 0.85);
+  border-top: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.summary-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.income-color {
+  color: var(--green);
+  text-shadow: 0 0 14px rgba(61, 232, 160, 0.3);
+}
+
+.bills-color {
+  color: var(--red);
+  text-shadow: 0 0 14px rgba(255, 79, 110, 0.3);
+}
+
+/* Remaining dynamically colored via JS */
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal {
+  width: 90%;
+  max-width: 440px;
+  animation: modalIn 250ms ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal h3 {
+  font-size: 1.15rem;
+  margin-bottom: 18px;
+  color: var(--text-primary);
+}
+
+.modal .form-row {
+  margin-bottom: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-actions .btn {
+  flex: 1;
+}
+
+/* --- Empty state --- */
+.empty-state {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .app-header {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .summary-bar {
+    gap: 24px;
+    padding: 14px 16px;
+  }
+
+  .summary-value {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+}

@@ -1,1 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tallens Riches — Bill Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+  <!-- ====== HEADER ====== -->
+  <header class="app-header">
+    <h1 class="logo">Tallens <span>Riches</span></h1>
+    <div class="header-actions">
+      <select id="payFrequency" title="Pay frequency">
+        <option value="weekly">Weekly</option>
+        <option value="biweekly" selected>Bi-Weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <button id="btnExport" class="btn btn-secondary" title="Save backup">Save Backup (JSON)</button>
+      <button id="btnImport" class="btn btn-secondary" title="Load backup">Load Backup (JSON)</button>
+      <input type="file" id="fileImport" accept=".json" hidden>
+    </div>
+  </header>
+
+  <!-- ====== MAIN DASHBOARD ====== -->
+  <main class="dashboard">
+
+    <!-- LEFT COLUMN — Input Panels -->
+    <section class="col-left">
+
+      <!-- Income Panel -->
+      <div class="glass-panel">
+        <h2>Income</h2>
+        <form id="incomeForm" class="entry-form">
+          <div class="form-row">
+            <label for="incomeAmount">Amount ($)</label>
+            <input type="number" id="incomeAmount" placeholder="0.00" step="0.01" min="0" required>
+          </div>
+          <div class="form-row">
+            <label for="incomeDate">Date Received</label>
+            <input type="date" id="incomeDate" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Income</button>
+        </form>
+        <ul id="incomeList" class="entry-list"></ul>
+      </div>
+
+      <!-- Bills Panel -->
+      <div class="glass-panel">
+        <h2>Bills</h2>
+        <form id="billForm" class="entry-form">
+          <div class="form-row">
+            <label for="billName">Bill Name</label>
+            <input type="text" id="billName" placeholder="e.g. Rent" required>
+          </div>
+          <div class="form-row">
+            <label for="billAmount">Amount ($)</label>
+            <input type="number" id="billAmount" placeholder="0.00" step="0.01" min="0" required>
+          </div>
+          <div class="form-row">
+            <label for="billDueDate">Due Date</label>
+            <input type="date" id="billDueDate" required>
+          </div>
+          <div class="form-row">
+            <label for="billCategory">Category</label>
+            <select id="billCategory">
+              <option value="Housing">Housing</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Transportation">Transportation</option>
+              <option value="Insurance">Insurance</option>
+              <option value="Food">Food</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Subscriptions">Subscriptions</option>
+              <option value="Debt">Debt</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Bill</button>
+        </form>
+        <ul id="billList" class="entry-list"></ul>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN — Breakdown + Timeline -->
+    <section class="col-right">
+
+      <!-- Pay-Period Breakdown -->
+      <div class="glass-panel">
+        <h2>Pay-Period Breakdown</h2>
+        <div id="payPeriodBreakdown" class="breakdown-container"></div>
+      </div>
+
+      <!-- Upcoming Bills Timeline -->
+      <div class="glass-panel">
+        <h2>Upcoming Bills Timeline</h2>
+        <div id="billTimeline" class="timeline-container"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====== SUMMARY BAR ====== -->
+  <footer class="summary-bar">
+    <div class="summary-item">
+      <span class="summary-label">Total Income</span>
+      <span id="totalIncome" class="summary-value income-color">$0.00</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Total Bills</span>
+      <span id="totalBills" class="summary-value bills-color">$0.00</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Remaining</span>
+      <span id="remaining" class="summary-value">$0.00</span>
+    </div>
+  </footer>
+
+  <!-- ====== EDIT / DELETE MODAL ====== -->
+  <div id="modal" class="modal-overlay" hidden>
+    <div class="modal glass-panel">
+      <h3 id="modalTitle">Edit Entry</h3>
+      <form id="modalForm">
+        <div id="modalFields"></div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" id="btnModalDelete" class="btn btn-danger">Delete</button>
+          <button type="button" id="btnModalCancel" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
