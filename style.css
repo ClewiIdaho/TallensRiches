@@ -10,20 +10,20 @@
   --purple-glow: rgba(155, 92, 255, 0.45);
   --purple-soft: rgba(155, 92, 255, 0.15);
 
-  /* Charcoal / black glossy palette */
-  --bg-dark: #0d0d0d;
-  --bg-charcoal: #1a1a1e;
-  --bg-gradient: linear-gradient(160deg, #1e1e22 0%, #131315 40%, #0a0a0a 100%);
+  /* Charcoal / black glossy palette — zero purple */
+  --bg-dark: #0c0c0c;
+  --bg-charcoal: #1a1a1a;
+  --bg-gradient: linear-gradient(160deg, #222222 0%, #141414 40%, #080808 100%);
 
   /* Glass tones */
   --glass-bg: rgba(255, 255, 255, 0.045);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-highlight: rgba(255, 255, 255, 0.07);
 
-  /* Text — high contrast for charcoal background */
-  --text-primary: #f5f5f7;
-  --text-secondary: #c5c2d4;
-  --text-dim: #918da4;
+  /* Text — neutral greys, high contrast */
+  --text-primary: #f5f5f5;
+  --text-secondary: #c8c8cc;
+  --text-dim: #929296;
 
   /* Status colors */
   --green: #3de8a0;
@@ -59,6 +59,7 @@ body {
   background: var(--bg-dark);
   background-image: var(--bg-gradient);
   background-attachment: fixed;
+  background-size: cover;
   color: var(--text-primary);
   min-height: 100vh;
   min-height: 100dvh;
@@ -244,8 +245,8 @@ input::placeholder {
 }
 
 select option {
-  background: var(--bg-charcoal);
-  color: var(--text-primary);
+  background: #ffffff;
+  color: #111111;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
