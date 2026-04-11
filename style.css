@@ -10,32 +10,26 @@
   --purple-glow: rgba(155, 92, 255, 0.45);
   --purple-soft: rgba(155, 92, 255, 0.15);
 
-  /* Charcoal / black glossy palette — zero purple */
   --bg-dark: #0c0c0c;
   --bg-charcoal: #1a1a1a;
   --bg-gradient: linear-gradient(160deg, #222222 0%, #141414 40%, #080808 100%);
 
-  /* Glass tones */
   --glass-bg: rgba(255, 255, 255, 0.045);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-highlight: rgba(255, 255, 255, 0.07);
 
-  /* Text — neutral greys, high contrast */
   --text-primary: #f5f5f5;
   --text-secondary: #c8c8cc;
   --text-dim: #929296;
 
-  /* Status colors */
   --green: #3de8a0;
   --red: #ff4f6e;
   --yellow: #ffcb47;
 
-  /* Layout */
   --radius: 16px;
   --radius-sm: 10px;
   --transition: 250ms ease;
 
-  /* Safe areas for notched phones */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -69,7 +63,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Subtle glossy sheen overlay — neutral, no purple tint */
 body::before {
   content: '';
   position: fixed;
@@ -226,7 +219,7 @@ input[type="date"] {
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.06);
   color: var(--text-primary);
-  font-size: max(16px, 1rem); /* Prevents iOS zoom on focus */
+  font-size: max(16px, 1rem);
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
   min-height: 44px;
@@ -305,6 +298,7 @@ label {
   cursor: pointer;
   transition: all var(--transition);
   min-height: 52px;
+  gap: 8px;
 }
 
 .entry-item:hover {
@@ -314,6 +308,22 @@ label {
 
 .entry-item:active {
   background: rgba(155, 92, 255, 0.1);
+}
+
+/* Paid bill item — muted visual */
+.entry-item.bill-paid {
+  opacity: 0.6;
+  border-color: rgba(61, 232, 160, 0.2);
+  background: rgba(61, 232, 160, 0.03);
+}
+
+.entry-item.bill-paid .entry-name {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+
+.entry-item.bill-paid .entry-amount {
+  color: var(--text-dim) !important;
 }
 
 .entry-item .entry-info {
@@ -340,13 +350,13 @@ label {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
-  margin-left: 12px;
+  margin-left: 4px;
 }
 
 .entry-item .entry-amount.income { color: var(--green); }
 .entry-item .entry-amount.bill   { color: var(--red); }
 
-/* Inline delete button on entries */
+/* Inline delete button */
 .delete-btn {
   display: flex;
   align-items: center;
@@ -362,7 +372,6 @@ label {
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  margin-left: 10px;
   flex-shrink: 0;
   transition: all var(--transition);
   opacity: 0.6;
@@ -387,6 +396,58 @@ label {
   }
 }
 
+/* ============================================================
+   PAID TOGGLE BUTTON
+   ============================================================ */
+.paid-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all var(--transition);
+  min-height: 30px;
+}
+
+.paid-btn:hover {
+  background: rgba(61, 232, 160, 0.1);
+  border-color: rgba(61, 232, 160, 0.3);
+  color: var(--green);
+}
+
+.paid-btn.is-paid {
+  background: rgba(61, 232, 160, 0.12);
+  border-color: rgba(61, 232, 160, 0.35);
+  color: var(--green);
+  box-shadow: 0 0 8px rgba(61, 232, 160, 0.2);
+}
+
+.paid-btn.is-paid:hover {
+  background: rgba(61, 232, 160, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-dim);
+  box-shadow: none;
+}
+
+@media (pointer: coarse) {
+  .paid-btn {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
+}
+
+/* ============================================================
+   CATEGORY BADGE
+   ============================================================ */
 .category-badge {
   display: inline-block;
   padding: 2px 8px;
@@ -517,6 +578,28 @@ label {
   background: rgba(255, 255, 255, 0.025);
 }
 
+/* Paid bill row in breakdown */
+.period-bill-row.period-bill-paid {
+  opacity: 0.5;
+}
+
+.period-bill-row.period-bill-paid .bill-label {
+  text-decoration: line-through;
+}
+
+.period-paid-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--green);
+  background: rgba(61, 232, 160, 0.12);
+  border: 1px solid rgba(61, 232, 160, 0.25);
+  border-radius: 5px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 .period-bill-row .bill-label {
   color: var(--text-secondary);
   min-width: 0;
@@ -576,6 +659,31 @@ label {
 .timeline-item.due-soon { border-left-color: var(--yellow); }
 .timeline-item.past-due { border-left-color: var(--red); }
 
+/* Paid state overrides timeline status color */
+.timeline-item.timeline-paid {
+  border-left-color: var(--green) !important;
+  opacity: 0.55;
+}
+
+.timeline-item.timeline-paid .tl-name {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+
+.timeline-paid-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  background: rgba(61, 232, 160, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(61, 232, 160, 0.25);
+}
+
 .timeline-dot {
   width: 10px;
   height: 10px;
@@ -586,6 +694,7 @@ label {
 .upcoming .timeline-dot { background: var(--purple); box-shadow: 0 0 8px var(--purple-glow); }
 .due-soon .timeline-dot { background: var(--yellow); box-shadow: 0 0 8px rgba(255,203,71,0.4); }
 .past-due .timeline-dot { background: var(--red);    box-shadow: 0 0 8px rgba(255,79,110,0.4); }
+.timeline-paid .timeline-dot { background: var(--green); box-shadow: 0 0 8px rgba(61,232,160,0.3); }
 
 .timeline-info {
   flex: 1;
@@ -727,7 +836,7 @@ label {
 }
 
 /* ============================================================
-   RESPONSIVE — Tablet (max-width: 900px)
+   RESPONSIVE — Tablet
    ============================================================ */
 @media (max-width: 900px) {
   .dashboard {
@@ -757,7 +866,7 @@ label {
 }
 
 /* ============================================================
-   RESPONSIVE — Mobile (max-width: 600px)
+   RESPONSIVE — Mobile
    ============================================================ */
 @media (max-width: 600px) {
   .dashboard {
@@ -802,6 +911,26 @@ label {
   .entry-item {
     padding: 14px 12px;
     min-height: 56px;
+    flex-wrap: wrap;
+  }
+
+  .entry-item .entry-info {
+    flex-basis: 100%;
+    order: 0;
+  }
+
+  .entry-item .entry-amount {
+    order: 1;
+    margin-left: 0;
+    flex: 1;
+  }
+
+  .paid-btn {
+    order: 2;
+  }
+
+  .delete-btn {
+    order: 3;
   }
 
   .entry-item .entry-name { font-size: 0.9rem; }
@@ -843,7 +972,6 @@ label {
   .summary-label { font-size: 0.65rem; }
   .summary-value { font-size: 1.1rem; }
 
-  /* Modal slides up from bottom on mobile */
   .modal-overlay {
     padding: 14px;
     align-items: flex-end;
@@ -866,7 +994,7 @@ label {
 }
 
 /* ============================================================
-   RESPONSIVE — Small phones (max-width: 380px)
+   RESPONSIVE — Small phones
    ============================================================ */
 @media (max-width: 380px) {
   .dashboard {
@@ -920,7 +1048,6 @@ label {
   .btn { min-height: 48px; }
   .entry-item { min-height: 56px; }
 
-  /* Disable hover glow on touch — rely on :active */
   .glass-panel:hover {
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.5),
