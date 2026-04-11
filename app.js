@@ -39,7 +39,6 @@
 
   // ---- Helpers ----
 
-  /** Load JSON from localStorage with a fallback default. */
   function loadJSON(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
@@ -49,52 +48,39 @@
     }
   }
 
-  /** Persist current state to localStorage. */
   function persist() {
     localStorage.setItem(STORAGE_KEY_INCOME, JSON.stringify(incomeEntries));
     localStorage.setItem(STORAGE_KEY_BILLS, JSON.stringify(billEntries));
     localStorage.setItem(STORAGE_KEY_FREQ, payFreq.value);
   }
 
-  /** Format a number as USD currency string. */
   function usd(n) {
     return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  /** Generate a simple unique id. */
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
-  /** Parse a date string (YYYY-MM-DD) into a Date at local midnight. */
   function parseDate(str) {
     const [y, m, d] = str.split('-').map(Number);
     return new Date(y, m - 1, d);
   }
 
-  /** Format a Date as "Mon DD, YYYY". */
   function fmtDate(date) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
-  /** Format a Date as "Mon DD". */
   function fmtShort(date) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
-  /** Return today at midnight. */
   function today() {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
   }
 
-  /**
-   * Determine bill status relative to today.
-   * "past-due"  — due date is before today
-   * "due-soon"  — due within 3 days
-   * "upcoming"  — otherwise
-   */
   function billStatus(dueDateStr) {
     const due = parseDate(dueDateStr);
     const now = today();
@@ -105,7 +91,6 @@
     return 'upcoming';
   }
 
-  /** Human-readable status label. */
   function statusLabel(status) {
     if (status === 'past-due') return 'Past Due';
     if (status === 'due-soon') return 'Due Soon';
@@ -114,7 +99,6 @@
 
   // ---- Rendering ----
 
-  /** Re-render all UI sections and persist state. */
   function render() {
     renderIncomeList();
     renderBillList();
@@ -124,13 +108,11 @@
     persist();
   }
 
-  /** Render income entries list. */
   function renderIncomeList() {
     if (incomeEntries.length === 0) {
       incomeList.innerHTML = '<li class="empty-state">No income added yet.</li>';
       return;
     }
-    // Sort by date descending
     const sorted = [...incomeEntries].sort((a, b) => b.date.localeCompare(a.date));
     incomeList.innerHTML = sorted.map((e) => `
       <li class="entry-item" data-id="${e.id}" data-type="income">
@@ -144,7 +126,6 @@
     `).join('');
   }
 
-  /** Render bill entries list. */
   function renderBillList() {
     if (billEntries.length === 0) {
       billList.innerHTML = '<li class="empty-state">No bills added yet.</li>';
@@ -153,19 +134,22 @@
     const sorted = [...billEntries].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
     billList.innerHTML = sorted.map((e) => {
       const status = billStatus(e.dueDate);
+      const isPaid = e.paid === true;
       return `
-        <li class="entry-item" data-id="${e.id}" data-type="bill">
+        <li class="entry-item${isPaid ? ' bill-paid' : ''}" data-id="${e.id}" data-type="bill">
           <div class="entry-info">
             <span class="entry-name">${escapeHTML(e.name)}<span class="category-badge">${escapeHTML(e.category)}</span></span>
             <span class="entry-meta">${fmtDate(parseDate(e.dueDate))}</span>
           </div>
           <span class="entry-amount bill">${usd(e.amount)}</span>
+          <button class="paid-btn${isPaid ? ' is-paid' : ''}" data-paid-id="${e.id}" title="${isPaid ? 'Mark Unpaid' : 'Mark Paid'}">
+            ${isPaid ? '✓ Paid' : 'Unpaid'}
+          </button>
           <button class="delete-btn" data-delete-id="${e.id}" data-delete-type="bill" title="Delete">&times;</button>
         </li>`;
     }).join('');
   }
 
-  /** Render the upcoming bills timeline with status indicators. */
   function renderTimeline() {
     if (billEntries.length === 0) {
       timeline.innerHTML = '<div class="empty-state">Add bills to see your timeline.</div>';
@@ -174,24 +158,22 @@
     const sorted = [...billEntries].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
     timeline.innerHTML = sorted.map((b) => {
       const status = billStatus(b.dueDate);
+      const isPaid = b.paid === true;
       return `
-        <div class="timeline-item ${status}" data-id="${b.id}" data-type="bill">
+        <div class="timeline-item ${status}${isPaid ? ' timeline-paid' : ''}" data-id="${b.id}" data-type="bill">
           <div class="timeline-dot"></div>
           <div class="timeline-info">
             <div class="tl-name">${escapeHTML(b.name)}</div>
             <div class="tl-date">${fmtDate(parseDate(b.dueDate))}</div>
           </div>
           <span class="timeline-amount">${usd(b.amount)}</span>
-          <span class="timeline-status">${statusLabel(status)}</span>
+          ${isPaid
+            ? '<span class="timeline-paid-badge">✓ Paid</span>'
+            : `<span class="timeline-status">${statusLabel(status)}</span>`}
         </div>`;
     }).join('');
   }
 
-  /**
-   * Render pay-period breakdown.
-   * Generates periods based on the chosen frequency, distributes income and
-   * bills into each period, and shows a running remaining balance.
-   */
   function renderBreakdown() {
     const freq = payFreq.value;
     const periods = generatePayPeriods(freq);
@@ -208,15 +190,15 @@
       const pct          = periodIncome > 0 ? Math.min((remaining / periodIncome) * 100, 100) : 0;
       const isPositive   = remaining >= 0;
 
-      // Build bill rows for detail view
       let runningBalance = periodIncome;
       const billRows = p.bills
         .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
         .map((b) => {
           runningBalance -= b.amount;
+          const isPaid = b.paid === true;
           return `
-            <div class="period-bill-row">
-              <span class="bill-label">${escapeHTML(b.name)} — ${fmtShort(parseDate(b.dueDate))}</span>
+            <div class="period-bill-row${isPaid ? ' period-bill-paid' : ''}">
+              <span class="bill-label">${escapeHTML(b.name)} — ${fmtShort(parseDate(b.dueDate))}${isPaid ? ' <span class="period-paid-tag">Paid</span>' : ''}</span>
               <span class="bill-amt">-${usd(b.amount)}</span>
             </div>
             <div class="period-bill-remaining">
@@ -245,15 +227,9 @@
     }).join('');
   }
 
-  /**
-   * Generate pay periods spanning the current month (and a bit beyond)
-   * based on the selected frequency. Each period contains the income and
-   * bill entries that fall within its date range.
-   */
   function generatePayPeriods(freq) {
     if (incomeEntries.length === 0 && billEntries.length === 0) return [];
 
-    // Determine the date range: earliest entry to latest + buffer
     const allDates = [
       ...incomeEntries.map((e) => e.date),
       ...billEntries.map((e) => e.dueDate)
@@ -264,11 +240,9 @@
     let start = parseDate(allDates[0]);
     let end   = parseDate(allDates[allDates.length - 1]);
 
-    // Extend end by at least one period so the last entry is covered
     const bufferDays = freq === 'weekly' ? 7 : freq === 'biweekly' ? 14 : 31;
     end = new Date(end.getTime() + bufferDays * 86400000);
 
-    // Build period boundaries
     const periods = [];
     let cursor = new Date(start);
 
@@ -279,20 +253,17 @@
       } else if (freq === 'biweekly') {
         periodEnd = new Date(cursor.getTime() + 13 * 86400000);
       } else {
-        // Monthly: same day next month - 1 day
         periodEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, cursor.getDate() - 1);
       }
 
       const pStart = new Date(cursor);
       const pEnd   = new Date(periodEnd);
 
-      // Collect income in range
       const income = incomeEntries.filter((e) => {
         const d = parseDate(e.date);
         return d >= pStart && d <= pEnd;
       });
 
-      // Collect bills in range
       const bills = billEntries.filter((e) => {
         const d = parseDate(e.dueDate);
         return d >= pStart && d <= pEnd;
@@ -300,7 +271,6 @@
 
       periods.push({ start: pStart, end: pEnd, income, bills });
 
-      // Advance cursor
       if (freq === 'weekly') {
         cursor = new Date(cursor.getTime() + 7 * 86400000);
       } else if (freq === 'biweekly') {
@@ -313,7 +283,6 @@
     return periods;
   }
 
-  /** Render the summary bar totals. */
   function renderSummary() {
     const totalIncome = incomeEntries.reduce((s, e) => s + e.amount, 0);
     const totalBills  = billEntries.reduce((s, e) => s + e.amount, 0);
@@ -323,14 +292,12 @@
     totalBilEl.textContent = usd(totalBills);
     remainEl.textContent   = (remaining >= 0 ? '' : '-') + usd(remaining);
 
-    // Color the remaining value
     remainEl.style.color = remaining >= 0 ? 'var(--green)' : 'var(--red)';
     remainEl.style.textShadow = remaining >= 0
       ? '0 0 14px rgba(61,232,160,0.3)'
       : '0 0 14px rgba(255,79,110,0.3)';
   }
 
-  /** Escape HTML to prevent XSS when inserting user-provided text. */
   function escapeHTML(str) {
     const el = document.createElement('span');
     el.textContent = str;
@@ -339,19 +306,16 @@
 
   // ---- CRUD Operations ----
 
-  /** Add a new income entry. */
   function addIncome(amount, date) {
     incomeEntries.push({ id: uid(), amount: parseFloat(amount), date });
     render();
   }
 
-  /** Add a new bill entry. */
   function addBill(name, amount, dueDate, category) {
-    billEntries.push({ id: uid(), name, amount: parseFloat(amount), dueDate, category });
+    billEntries.push({ id: uid(), name, amount: parseFloat(amount), dueDate, category, paid: false });
     render();
   }
 
-  /** Update an existing income entry. */
   function updateIncome(id, amount, date) {
     const entry = incomeEntries.find((e) => e.id === id);
     if (!entry) return;
@@ -360,7 +324,6 @@
     render();
   }
 
-  /** Update an existing bill entry. */
   function updateBill(id, name, amount, dueDate, category) {
     const entry = billEntries.find((e) => e.id === id);
     if (!entry) return;
@@ -368,18 +331,25 @@
     entry.amount = parseFloat(amount);
     entry.dueDate = dueDate;
     entry.category = category;
+    // preserve paid state — do not overwrite it here
     render();
   }
 
-  /** Delete an income entry by id. */
   function deleteIncome(id) {
     incomeEntries = incomeEntries.filter((e) => e.id !== id);
     render();
   }
 
-  /** Delete a bill entry by id. */
   function deleteBill(id) {
     billEntries = billEntries.filter((e) => e.id !== id);
+    render();
+  }
+
+  /** Toggle a bill's paid status. */
+  function toggleBillPaid(id) {
+    const entry = billEntries.find((e) => e.id === id);
+    if (!entry) return;
+    entry.paid = !entry.paid;
     render();
   }
 
@@ -387,7 +357,6 @@
 
   let modalState = { type: null, id: null };
 
-  /** Open the edit/delete modal for an entry. */
   function openModal(type, id) {
     modalState = { type, id };
     modal.hidden = false;
@@ -431,7 +400,6 @@
     }
   }
 
-  /** Close the modal. */
   function closeModal() {
     modal.hidden = true;
     modalState = { type: null, id: null };
@@ -439,7 +407,6 @@
 
   // ---- Event Listeners ----
 
-  // Add income
   incomeForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const amount = document.getElementById('incomeAmount').value;
@@ -449,7 +416,6 @@
     incomeForm.reset();
   });
 
-  // Add bill
   billForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const name     = document.getElementById('billName').value.trim();
@@ -461,7 +427,7 @@
     billForm.reset();
   });
 
-  // Click inline delete button → delete entry directly
+  // Inline delete button
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.delete-btn');
     if (!btn) return;
@@ -472,19 +438,28 @@
     else deleteBill(id);
   });
 
-  // Click on an entry item → open modal for editing
+  // Paid toggle button
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.paid-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    const id = btn.dataset.paidId;
+    toggleBillPaid(id);
+  });
+
+  // Click entry item → open modal
   document.addEventListener('click', (e) => {
     if (e.target.closest('.delete-btn')) return;
+    if (e.target.closest('.paid-btn')) return;
     const item = e.target.closest('[data-id][data-type]');
     if (!item) return;
     openModal(item.dataset.type, item.dataset.id);
   });
 
-  // Click on pay-period card → toggle bill details
+  // Pay-period card toggle
   document.addEventListener('click', (e) => {
     const card = e.target.closest('.pay-period-card');
     if (!card) return;
-    // Don't toggle if the click was on a bill item inside the card
     if (e.target.closest('[data-id]')) return;
     const detail = card.querySelector('.pay-period-bills');
     if (detail) {
@@ -493,7 +468,7 @@
     }
   });
 
-  // Modal form submit → save edits
+  // Modal form submit
   modalForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const { type, id } = modalState;
@@ -515,7 +490,6 @@
     closeModal();
   });
 
-  // Modal delete button
   btnDelete.addEventListener('click', () => {
     const { type, id } = modalState;
     if (type === 'income') deleteIncome(id);
@@ -523,29 +497,24 @@
     closeModal();
   });
 
-  // Modal cancel / overlay click
   btnCancel.addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
   });
 
-  // Close modal on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !modal.hidden) closeModal();
   });
 
-  // Pay frequency change
   payFreq.addEventListener('change', () => {
     render();
   });
 
-  // Restore saved frequency preference
   const savedFreq = localStorage.getItem(STORAGE_KEY_FREQ);
   if (savedFreq) payFreq.value = savedFreq;
 
   // ---- Export / Import ----
 
-  /** Export all data as a downloadable JSON file. */
   btnExport.addEventListener('click', () => {
     const data = {
       version: 1,
@@ -563,10 +532,8 @@
     URL.revokeObjectURL(url);
   });
 
-  /** Trigger file picker for import. */
   btnImport.addEventListener('click', () => fileImport.click());
 
-  /** Read and apply imported JSON backup. */
   fileImport.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -588,7 +555,6 @@
       }
     };
     reader.readAsText(file);
-    // Reset so the same file can be re-imported
     fileImport.value = '';
   });
 
