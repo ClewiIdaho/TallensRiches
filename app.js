@@ -16,26 +16,26 @@
   let billEntries   = loadJSON(STORAGE_KEY_BILLS, []);
 
   // ---- DOM References ----
-  const $          = (sel) => document.querySelector(sel);
-  const incomeForm = $('#incomeForm');
-  const billForm   = $('#billForm');
-  const incomeList = $('#incomeList');
-  const billList   = $('#billList');
-  const payFreq    = $('#payFrequency');
-  const breakdown  = $('#payPeriodBreakdown');
-  const timeline   = $('#billTimeline');
-  const totalIncEl = $('#totalIncome');
-  const totalBilEl = $('#totalBills');
-  const remainEl   = $('#remaining');
-  const modal      = $('#modal');
-  const modalTitle = $('#modalTitle');
+  const $           = (sel) => document.querySelector(sel);
+  const incomeForm  = $('#incomeForm');
+  const billForm    = $('#billForm');
+  const incomeList  = $('#incomeList');
+  const billList    = $('#billList');
+  const payFreq     = $('#payFrequency');
+  const breakdown   = $('#payPeriodBreakdown');
+  const timeline    = $('#billTimeline');
+  const totalIncEl  = $('#totalIncome');
+  const totalBilEl  = $('#totalBills');
+  const remainEl    = $('#remaining');
+  const modal       = $('#modal');
+  const modalTitle  = $('#modalTitle');
   const modalFields = $('#modalFields');
-  const modalForm  = $('#modalForm');
-  const btnDelete  = $('#btnModalDelete');
-  const btnCancel  = $('#btnModalCancel');
-  const btnExport  = $('#btnExport');
-  const btnImport  = $('#btnImport');
-  const fileImport = $('#fileImport');
+  const modalForm   = $('#modalForm');
+  const btnDelete   = $('#btnModalDelete');
+  const btnCancel   = $('#btnModalCancel');
+  const btnExport   = $('#btnExport');
+  const btnImport   = $('#btnImport');
+  const fileImport  = $('#fileImport');
 
   // ---- Helpers ----
 
@@ -50,8 +50,8 @@
 
   function persist() {
     localStorage.setItem(STORAGE_KEY_INCOME, JSON.stringify(incomeEntries));
-    localStorage.setItem(STORAGE_KEY_BILLS, JSON.stringify(billEntries));
-    localStorage.setItem(STORAGE_KEY_FREQ, payFreq.value);
+    localStorage.setItem(STORAGE_KEY_BILLS,  JSON.stringify(billEntries));
+    localStorage.setItem(STORAGE_KEY_FREQ,   payFreq.value);
   }
 
   function usd(n) {
@@ -82,11 +82,11 @@
   }
 
   function billStatus(dueDateStr) {
-    const due = parseDate(dueDateStr);
-    const now = today();
-    const diffMs = due - now;
+    const due     = parseDate(dueDateStr);
+    const now     = today();
+    const diffMs  = due - now;
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
-    if (diffDays < 0) return 'past-due';
+    if (diffDays < 0)  return 'past-due';
     if (diffDays <= 3) return 'due-soon';
     return 'upcoming';
   }
@@ -95,6 +95,12 @@
     if (status === 'past-due') return 'Past Due';
     if (status === 'due-soon') return 'Due Soon';
     return 'Upcoming';
+  }
+
+  function escapeHTML(str) {
+    const el = document.createElement('span');
+    el.textContent = str;
+    return el.innerHTML;
   }
 
   // ---- Rendering ----
@@ -126,30 +132,70 @@
     `).join('');
   }
 
-  function renderBillList() {
-    if (billEntries.length === 0) {
-      billList.innerHTML = '<li class="empty-state">No bills added yet.</li>';
-      return;
-    }
-    const sorted = [...billEntries].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
-    billList.innerHTML = sorted.map((e) => {
-      const status = billStatus(e.dueDate);
-      const isPaid = e.paid === true;
-      return `
-        <li class="entry-item${isPaid ? ' bill-paid' : ''}" data-id="${e.id}" data-type="bill">
-          <div class="entry-info">
-            <span class="entry-name">${escapeHTML(e.name)}<span class="category-badge">${escapeHTML(e.category)}</span></span>
-            <span class="entry-meta">${fmtDate(parseDate(e.dueDate))}</span>
-          </div>
-          <span class="entry-amount bill">${usd(e.amount)}</span>
-          <button class="paid-btn${isPaid ? ' is-paid' : ''}" data-paid-id="${e.id}" title="${isPaid ? 'Mark Unpaid' : 'Mark Paid'}">
-            ${isPaid ? '✓ Paid' : 'Unpaid'}
-          </button>
-          <button class="delete-btn" data-delete-id="${e.id}" data-delete-type="bill" title="Delete">&times;</button>
-        </li>`;
-    }).join('');
+  /** Build a single bill row — used in both Unpaid and Paid sections. */
+  function buildBillRow(e) {
+    const isPaid = e.paid === true;
+    return `
+      <li class="entry-item${isPaid ? ' bill-paid' : ''}" data-id="${e.id}" data-type="bill">
+        <div class="entry-info">
+          <span class="entry-name">${escapeHTML(e.name)}<span class="category-badge">${escapeHTML(e.category)}</span></span>
+          <span class="entry-meta">${fmtDate(parseDate(e.dueDate))}</span>
+        </div>
+        <span class="entry-amount bill">${usd(e.amount)}</span>
+        <button
+          class="paid-toggle-btn ${isPaid ? 'state-paid' : 'state-unpaid'}"
+          data-paid-id="${e.id}"
+          title="${isPaid ? 'Click to mark Unpaid' : 'Click to mark Paid'}"
+        >${isPaid ? '✓ Paid' : 'Unpaid'}</button>
+        <button class="delete-btn" data-delete-id="${e.id}" data-delete-type="bill" title="Delete">&times;</button>
+      </li>`;
   }
 
+  /** Render bills split into Unpaid / Paid sections. */
+  function renderBillList() {
+    if (billEntries.length === 0) {
+      billList.innerHTML = '<div class="empty-state">No bills added yet.</div>';
+      return;
+    }
+
+    const sorted   = [...billEntries].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+    const unpaid   = sorted.filter((e) => !e.paid);
+    const paid     = sorted.filter((e) => e.paid);
+
+    let html = '';
+
+    // ---- Unpaid section ----
+    html += `<div class="bill-section">
+      <div class="bill-section-header unpaid-header">
+        <span class="section-dot dot-unpaid"></span>
+        Unpaid
+        <span class="section-count">${unpaid.length}</span>
+      </div>
+      <ul class="entry-list">
+        ${unpaid.length
+          ? unpaid.map(buildBillRow).join('')
+          : '<li class="empty-state">No unpaid bills.</li>'}
+      </ul>
+    </div>`;
+
+    // ---- Paid section ----
+    html += `<div class="bill-section">
+      <div class="bill-section-header paid-header">
+        <span class="section-dot dot-paid"></span>
+        Paid
+        <span class="section-count">${paid.length}</span>
+      </div>
+      <ul class="entry-list">
+        ${paid.length
+          ? paid.map(buildBillRow).join('')
+          : '<li class="empty-state">No paid bills yet.</li>'}
+      </ul>
+    </div>`;
+
+    billList.innerHTML = html;
+  }
+
+  /** Render the upcoming bills timeline with status indicators. */
   function renderTimeline() {
     if (billEntries.length === 0) {
       timeline.innerHTML = '<div class="empty-state">Add bills to see your timeline.</div>';
@@ -160,10 +206,10 @@
       const status = billStatus(b.dueDate);
       const isPaid = b.paid === true;
       return `
-        <div class="timeline-item ${status}${isPaid ? ' timeline-paid' : ''}" data-id="${b.id}" data-type="bill">
+        <div class="timeline-item ${isPaid ? 'timeline-paid' : status}" data-id="${b.id}" data-type="bill">
           <div class="timeline-dot"></div>
           <div class="timeline-info">
-            <div class="tl-name">${escapeHTML(b.name)}</div>
+            <div class="tl-name${isPaid ? ' tl-paid-name' : ''}">${escapeHTML(b.name)}</div>
             <div class="tl-date">${fmtDate(parseDate(b.dueDate))}</div>
           </div>
           <span class="timeline-amount">${usd(b.amount)}</span>
@@ -174,8 +220,9 @@
     }).join('');
   }
 
+  /** Render pay-period breakdown. */
   function renderBreakdown() {
-    const freq = payFreq.value;
+    const freq    = payFreq.value;
     const periods = generatePayPeriods(freq);
 
     if (periods.length === 0) {
@@ -198,12 +245,17 @@
           const isPaid = b.paid === true;
           return `
             <div class="period-bill-row${isPaid ? ' period-bill-paid' : ''}">
-              <span class="bill-label">${escapeHTML(b.name)} — ${fmtShort(parseDate(b.dueDate))}${isPaid ? ' <span class="period-paid-tag">Paid</span>' : ''}</span>
+              <span class="bill-label">
+                ${escapeHTML(b.name)} — ${fmtShort(parseDate(b.dueDate))}
+                ${isPaid ? '<span class="period-paid-tag">Paid</span>' : ''}
+              </span>
               <span class="bill-amt">-${usd(b.amount)}</span>
             </div>
             <div class="period-bill-remaining">
               <span>Remaining</span>
-              <span style="color:${runningBalance >= 0 ? 'var(--green)' : 'var(--red)'}">${runningBalance >= 0 ? '' : '-'}${usd(runningBalance)}</span>
+              <span style="color:${runningBalance >= 0 ? 'var(--green)' : 'var(--red)'}">
+                ${runningBalance >= 0 ? '' : '-'}${usd(runningBalance)}
+              </span>
             </div>`;
         }).join('');
 
@@ -215,7 +267,9 @@
           </div>
           <div class="pay-period-summary">
             <span>Bills: <span style="color:var(--red)">-${usd(periodBills)}</span></span>
-            <span>Left: <span style="color:${isPositive ? 'var(--green)' : 'var(--red)'}">${isPositive ? '' : '-'}${usd(remaining)}</span></span>
+            <span>Left: <span style="color:${isPositive ? 'var(--green)' : 'var(--red)'}">
+              ${isPositive ? '' : '-'}${usd(remaining)}
+            </span></span>
           </div>
           <div class="remaining-bar">
             <div class="remaining-bar-fill ${isPositive ? 'positive' : 'negative'}" style="width:${Math.max(Math.abs(pct), 2)}%"></div>
@@ -263,7 +317,6 @@
         const d = parseDate(e.date);
         return d >= pStart && d <= pEnd;
       });
-
       const bills = billEntries.filter((e) => {
         const d = parseDate(e.dueDate);
         return d >= pStart && d <= pEnd;
@@ -291,20 +344,13 @@
     totalIncEl.textContent = usd(totalIncome);
     totalBilEl.textContent = usd(totalBills);
     remainEl.textContent   = (remaining >= 0 ? '' : '-') + usd(remaining);
-
-    remainEl.style.color = remaining >= 0 ? 'var(--green)' : 'var(--red)';
+    remainEl.style.color   = remaining >= 0 ? 'var(--green)' : 'var(--red)';
     remainEl.style.textShadow = remaining >= 0
       ? '0 0 14px rgba(61,232,160,0.3)'
       : '0 0 14px rgba(255,79,110,0.3)';
   }
 
-  function escapeHTML(str) {
-    const el = document.createElement('span');
-    el.textContent = str;
-    return el.innerHTML;
-  }
-
-  // ---- CRUD Operations ----
+  // ---- CRUD ----
 
   function addIncome(amount, date) {
     incomeEntries.push({ id: uid(), amount: parseFloat(amount), date });
@@ -320,18 +366,17 @@
     const entry = incomeEntries.find((e) => e.id === id);
     if (!entry) return;
     entry.amount = parseFloat(amount);
-    entry.date = date;
+    entry.date   = date;
     render();
   }
 
   function updateBill(id, name, amount, dueDate, category) {
     const entry = billEntries.find((e) => e.id === id);
     if (!entry) return;
-    entry.name = name;
-    entry.amount = parseFloat(amount);
+    entry.name    = name;
+    entry.amount  = parseFloat(amount);
     entry.dueDate = dueDate;
     entry.category = category;
-    // preserve paid state — do not overwrite it here
     render();
   }
 
@@ -345,7 +390,6 @@
     render();
   }
 
-  /** Toggle a bill's paid status. */
   function toggleBillPaid(id) {
     const entry = billEntries.find((e) => e.id === id);
     if (!entry) return;
@@ -379,7 +423,9 @@
       if (!entry) return;
       modalTitle.textContent = 'Edit Bill';
       const categories = ['Housing','Utilities','Transportation','Insurance','Food','Entertainment','Subscriptions','Debt','Other'];
-      const opts = categories.map((c) => `<option value="${c}" ${c === entry.category ? 'selected' : ''}>${c}</option>`).join('');
+      const opts = categories.map((c) =>
+        `<option value="${c}" ${c === entry.category ? 'selected' : ''}>${c}</option>`
+      ).join('');
       modalFields.innerHTML = `
         <div class="form-row">
           <label for="modalName">Bill Name</label>
@@ -427,7 +473,7 @@
     billForm.reset();
   });
 
-  // Inline delete button
+  // Delete button
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.delete-btn');
     if (!btn) return;
@@ -438,25 +484,24 @@
     else deleteBill(id);
   });
 
-  // Paid toggle button
+  // Paid/Unpaid toggle button
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.paid-btn');
+    const btn = e.target.closest('.paid-toggle-btn');
     if (!btn) return;
     e.stopPropagation();
-    const id = btn.dataset.paidId;
-    toggleBillPaid(id);
+    toggleBillPaid(btn.dataset.paidId);
   });
 
-  // Click entry item → open modal
+  // Click entry → open modal (skip delete + paid button clicks)
   document.addEventListener('click', (e) => {
-    if (e.target.closest('.delete-btn')) return;
-    if (e.target.closest('.paid-btn')) return;
+    if (e.target.closest('.delete-btn'))      return;
+    if (e.target.closest('.paid-toggle-btn')) return;
     const item = e.target.closest('[data-id][data-type]');
     if (!item) return;
     openModal(item.dataset.type, item.dataset.id);
   });
 
-  // Pay-period card toggle
+  // Pay-period card expand/collapse
   document.addEventListener('click', (e) => {
     const card = e.target.closest('.pay-period-card');
     if (!card) return;
@@ -468,16 +513,12 @@
     }
   });
 
-  // Modal form submit
+  // Modal save
   modalForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const { type, id } = modalState;
     if (type === 'income') {
-      updateIncome(
-        id,
-        document.getElementById('modalAmount').value,
-        document.getElementById('modalDate').value
-      );
+      updateIncome(id, document.getElementById('modalAmount').value, document.getElementById('modalDate').value);
     } else {
       updateBill(
         id,
@@ -498,17 +539,10 @@
   });
 
   btnCancel.addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modal.hidden) closeModal();
-  });
-
-  payFreq.addEventListener('change', () => {
-    render();
-  });
+  payFreq.addEventListener('change', render);
 
   const savedFreq = localStorage.getItem(STORAGE_KEY_FREQ);
   if (savedFreq) payFreq.value = savedFreq;
