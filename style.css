@@ -611,6 +611,171 @@ label {
 }
 
 /* ============================================================
+   PAYCHECK BREAKDOWN VISUAL
+   ============================================================ */
+.paycheck-breakdown {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.pcb-header {
+  text-align: center;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 4px;
+}
+
+.pcb-paycheck-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pcb-paycheck-amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 20px rgba(61, 232, 160, 0.3);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 14px;
+}
+
+/* Bars */
+.pcb-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.pcb-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 500ms ease, background 500ms ease;
+}
+
+.pcb-bar-full {
+  height: 10px;
+  border-radius: 5px;
+}
+
+.pcb-bar-full .pcb-bar-fill {
+  border-radius: 5px;
+  box-shadow: 0 0 12px rgba(61, 232, 160, 0.35);
+}
+
+/* Deduction rows */
+.pcb-deductions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.pcb-row {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  transition: all var(--transition);
+}
+
+.pcb-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(155, 92, 255, 0.15);
+}
+
+.pcb-row-paid {
+  opacity: 0.45;
+}
+
+.pcb-row-paid .pcb-bill-name {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+
+.pcb-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pcb-bill-name {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.pcb-deduct {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.pcb-row-bottom {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Footer summary */
+.pcb-footer {
+  padding-top: 16px;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 4px;
+}
+
+.pcb-footer-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.pcb-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pcb-stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.pcb-stat-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pcb-stat-pct {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+/* ============================================================
    TIMELINE
    ============================================================ */
 .timeline-container {
@@ -784,6 +949,13 @@ label {
   .timeline-item { flex-wrap: wrap; gap: 8px; padding: 12px; }
   .timeline-amount { font-size: 0.95rem; }
   .timeline-status { font-size: 0.6rem; }
+
+  .pcb-paycheck-amount { font-size: 1.45rem; }
+  .pcb-row { padding: 8px 10px; }
+  .pcb-bill-name { font-size: 0.82rem; }
+  .pcb-deduct { font-size: 0.82rem; }
+  .pcb-stat-value { font-size: 1rem; }
+  .pcb-deductions { max-height: 360px; }
 
   .pay-period-card { padding: 12px; }
   .pay-period-header { flex-direction: column; align-items: flex-start; gap: 4px; }

@@ -22,6 +22,7 @@
   const incomeList  = $('#incomeList');
   const billList    = $('#billList');
   const payFreq     = $('#payFrequency');
+  const paycheckBD  = $('#paycheckBreakdown');
   const breakdown   = $('#payPeriodBreakdown');
   const timeline    = $('#billTimeline');
   const totalIncEl  = $('#totalIncome');
@@ -109,6 +110,7 @@
     renderIncomeList();
     renderBillList();
     renderTimeline();
+    renderPaycheckBreakdown();
     renderBreakdown();
     renderSummary();
     persist();
@@ -218,6 +220,90 @@
             : `<span class="timeline-status">${statusLabel(status)}</span>`}
         </div>`;
     }).join('');
+  }
+
+  /** Render paycheck breakdown waterfall visual. */
+  function renderPaycheckBreakdown() {
+    const totalIncome = incomeEntries.reduce((s, e) => s + e.amount, 0);
+
+    if (totalIncome === 0) {
+      paycheckBD.innerHTML = '<div class="empty-state">Add income to see your paycheck breakdown.</div>';
+      return;
+    }
+    if (billEntries.length === 0) {
+      paycheckBD.innerHTML = '<div class="empty-state">Add bills to see deductions from your paycheck.</div>';
+      return;
+    }
+
+    const totalBills  = billEntries.reduce((s, e) => s + e.amount, 0);
+    const sorted      = [...billEntries].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+
+    function barColor(pct) {
+      if (pct > 60) return 'var(--green)';
+      if (pct > 30) return 'var(--yellow)';
+      return 'var(--red)';
+    }
+
+    let running = totalIncome;
+    let html = '';
+
+    // Header — paycheck total
+    html += `
+      <div class="pcb-header">
+        <div class="pcb-paycheck-label">Your Paycheck</div>
+        <div class="pcb-paycheck-amount">${usd(totalIncome)}</div>
+        <div class="pcb-bar pcb-bar-full">
+          <div class="pcb-bar-fill" style="width:100%;background:var(--green)"></div>
+        </div>
+      </div>`;
+
+    // Deduction rows
+    html += '<div class="pcb-deductions">';
+    sorted.forEach((bill) => {
+      running -= bill.amount;
+      const remainPct = Math.max((running / totalIncome) * 100, 0);
+      const color     = running >= 0 ? barColor(remainPct) : 'var(--red)';
+      const isPaid    = bill.paid === true;
+
+      html += `
+        <div class="pcb-row${isPaid ? ' pcb-row-paid' : ''}">
+          <div class="pcb-row-top">
+            <span class="pcb-bill-name">${escapeHTML(bill.name)}<span class="category-badge">${escapeHTML(bill.category)}</span></span>
+            <span class="pcb-deduct">-${usd(bill.amount)}</span>
+          </div>
+          <div class="pcb-bar">
+            <div class="pcb-bar-fill" style="width:${remainPct}%;background:${color}"></div>
+          </div>
+          <div class="pcb-row-bottom">
+            <span style="color:${running >= 0 ? color : 'var(--red)'}">
+              ${running >= 0 ? '' : '-'}${usd(running)} remaining
+            </span>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+
+    // Footer summary
+    const finalRemaining = totalIncome - totalBills;
+    const spentPct = Math.min((totalBills / totalIncome) * 100, 100);
+
+    html += `
+      <div class="pcb-footer">
+        <div class="pcb-footer-row">
+          <div class="pcb-stat">
+            <span class="pcb-stat-label">Total Spent</span>
+            <span class="pcb-stat-value" style="color:var(--red)">${usd(totalBills)}</span>
+            <span class="pcb-stat-pct">${spentPct.toFixed(0)}%</span>
+          </div>
+          <div class="pcb-stat">
+            <span class="pcb-stat-label">Remaining</span>
+            <span class="pcb-stat-value" style="color:${finalRemaining >= 0 ? 'var(--green)' : 'var(--red)'}">${finalRemaining >= 0 ? '' : '-'}${usd(finalRemaining)}</span>
+            <span class="pcb-stat-pct">${Math.max(100 - spentPct, 0).toFixed(0)}%</span>
+          </div>
+        </div>
+      </div>`;
+
+    paycheckBD.innerHTML = html;
   }
 
   /** Render pay-period breakdown. */
