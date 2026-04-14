@@ -10,7 +10,7 @@
 
   <!-- ====== HEADER ====== -->
   <header class="app-header">
-    <h1 class="logo">Tallens <span>Riches</span></h1>
+    <h1 class="logo"><span class="skull-icon" id="skullIcon" title="Click for wisdom">&#9760;</span> Tallens <span>Riches</span></h1>
     <div class="header-actions">
       <select id="payFrequency" title="Pay frequency">
         <option value="weekly">Weekly</option>
@@ -87,6 +87,12 @@
     <!-- RIGHT COLUMN — Breakdown + Timeline -->
     <section class="col-right">
 
+      <!-- Paycheck Breakdown Visual -->
+      <div class="glass-panel">
+        <h2>Paycheck Breakdown</h2>
+        <div id="paycheckBreakdown" class="paycheck-breakdown"></div>
+      </div>
+
       <!-- Pay-Period Breakdown -->
       <div class="glass-panel">
         <h2>Pay-Period Breakdown</h2>
@@ -130,6 +136,15 @@
         </div>
       </form>
     </div>
+  </div>
+
+  <!-- ====== TALLENBOT SNARK TOAST ====== -->
+  <div id="snarkToast" class="snark-toast">
+    <div class="snark-header">
+      <span class="snark-avatar">&#9760;</span>
+      <span class="snark-bot-name">TallenBot</span>
+    </div>
+    <div id="snarkMessage" class="snark-message"></div>
   </div>
 
   <script src="app.js"></script>

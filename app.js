@@ -22,6 +22,7 @@
   const incomeList  = $('#incomeList');
   const billList    = $('#billList');
   const payFreq     = $('#payFrequency');
+  const paycheckBD  = $('#paycheckBreakdown');
   const breakdown   = $('#payPeriodBreakdown');
   const timeline    = $('#billTimeline');
   const totalIncEl  = $('#totalIncome');
@@ -109,6 +110,7 @@
     renderIncomeList();
     renderBillList();
     renderTimeline();
+    renderPaycheckBreakdown();
     renderBreakdown();
     renderSummary();
     persist();
@@ -218,6 +220,90 @@
             : `<span class="timeline-status">${statusLabel(status)}</span>`}
         </div>`;
     }).join('');
+  }
+
+  /** Render paycheck breakdown waterfall visual. */
+  function renderPaycheckBreakdown() {
+    const totalIncome = incomeEntries.reduce((s, e) => s + e.amount, 0);
+
+    if (totalIncome === 0) {
+      paycheckBD.innerHTML = '<div class="empty-state">Add income to see your paycheck breakdown.</div>';
+      return;
+    }
+    if (billEntries.length === 0) {
+      paycheckBD.innerHTML = '<div class="empty-state">Add bills to see deductions from your paycheck.</div>';
+      return;
+    }
+
+    const totalBills  = billEntries.reduce((s, e) => s + e.amount, 0);
+    const sorted      = [...billEntries].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+
+    function barColor(pct) {
+      if (pct > 60) return 'var(--green)';
+      if (pct > 30) return 'var(--yellow)';
+      return 'var(--red)';
+    }
+
+    let running = totalIncome;
+    let html = '';
+
+    // Header — paycheck total
+    html += `
+      <div class="pcb-header">
+        <div class="pcb-paycheck-label">Your Paycheck</div>
+        <div class="pcb-paycheck-amount">${usd(totalIncome)}</div>
+        <div class="pcb-bar pcb-bar-full">
+          <div class="pcb-bar-fill" style="width:100%;background:var(--green)"></div>
+        </div>
+      </div>`;
+
+    // Deduction rows
+    html += '<div class="pcb-deductions">';
+    sorted.forEach((bill) => {
+      running -= bill.amount;
+      const remainPct = Math.max((running / totalIncome) * 100, 0);
+      const color     = running >= 0 ? barColor(remainPct) : 'var(--red)';
+      const isPaid    = bill.paid === true;
+
+      html += `
+        <div class="pcb-row${isPaid ? ' pcb-row-paid' : ''}">
+          <div class="pcb-row-top">
+            <span class="pcb-bill-name">${escapeHTML(bill.name)}<span class="category-badge">${escapeHTML(bill.category)}</span></span>
+            <span class="pcb-deduct">-${usd(bill.amount)}</span>
+          </div>
+          <div class="pcb-bar">
+            <div class="pcb-bar-fill" style="width:${remainPct}%;background:${color}"></div>
+          </div>
+          <div class="pcb-row-bottom">
+            <span style="color:${running >= 0 ? color : 'var(--red)'}">
+              ${running >= 0 ? '' : '-'}${usd(running)} remaining
+            </span>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+
+    // Footer summary
+    const finalRemaining = totalIncome - totalBills;
+    const spentPct = Math.min((totalBills / totalIncome) * 100, 100);
+
+    html += `
+      <div class="pcb-footer">
+        <div class="pcb-footer-row">
+          <div class="pcb-stat">
+            <span class="pcb-stat-label">Total Spent</span>
+            <span class="pcb-stat-value" style="color:var(--red)">${usd(totalBills)}</span>
+            <span class="pcb-stat-pct">${spentPct.toFixed(0)}%</span>
+          </div>
+          <div class="pcb-stat">
+            <span class="pcb-stat-label">Remaining</span>
+            <span class="pcb-stat-value" style="color:${finalRemaining >= 0 ? 'var(--green)' : 'var(--red)'}">${finalRemaining >= 0 ? '' : '-'}${usd(finalRemaining)}</span>
+            <span class="pcb-stat-pct">${Math.max(100 - spentPct, 0).toFixed(0)}%</span>
+          </div>
+        </div>
+      </div>`;
+
+    paycheckBD.innerHTML = html;
   }
 
   /** Render pay-period breakdown. */
@@ -591,6 +677,92 @@
     reader.readAsText(file);
     fileImport.value = '';
   });
+
+  // ---- TallenBot Snark System ----
+
+  const SNARK_MESSAGES = [
+    "Oh, buying Warhammer again huh?",
+    "Another bill? Those plastic Space Marines won't pay rent, Tallen.",
+    "Fun fact: Dragon Balls can't wish away credit card debt.",
+    "Your Honda has more mods than your savings account has dollars.",
+    "Still cheaper than your last relationship though.",
+    "Goku would be disappointed in your spending habits.",
+    "At least this app won't ghost you like your ex did.",
+    "Diablo won't grind your credit score up, bro.",
+    "Your anime subscriptions cost more than your car insurance, don't they?",
+    "No, a body pillow is NOT a tax write-off, Tallen.",
+    "Those Dragon Ball tattoos were already expensive enough, man.",
+    "Your ex took half your stuff but at least this app is free.",
+    "Maybe if you spent less on Warhammer paint and more on savings...",
+    "That Civic has more invested in it than your retirement fund.",
+    "You collect bills like you collect Dragon Balls. All seven of 'em.",
+    "Somewhere, Vegeta is judging your financial decisions.",
+    "Another car part? Your mechanic knows you better than your therapist.",
+    "Your Warhammer army could conquer nations but can't conquer your debt.",
+    "Plot twist: your ex was the real final boss. Not Diablo.",
+    "Bro, Shenron can't fix your credit score.",
+    "Your miniature paint budget is someone else's grocery budget.",
+    "You've spent more on anime figures than most people spend on furniture.",
+    "At this rate, your Honda is worth more than your 401k.",
+    "Even Frieza had better financial planning than this.",
+    "Remember: VTEC doesn't kick in on your bank account.",
+    "Adding another bill? That's not very Super Saiyan of you.",
+    "Your Warhammer collection has a higher net worth than you do.",
+    "Tallen, the check engine light is on AND your bills are due.",
+    "One day you'll realize Diablo loot doesn't count as assets.",
+    "You're out here living like Goku — zero financial awareness, all vibes.",
+  ];
+
+  const snarkToast   = $('#snarkToast');
+  const snarkMessage = $('#snarkMessage');
+  const skullIcon    = $('#skullIcon');
+  let lastSnarkIdx   = -1;
+  let snarkTimeout   = null;
+
+  function pickSnark() {
+    let idx;
+    do { idx = Math.floor(Math.random() * SNARK_MESSAGES.length); } while (idx === lastSnarkIdx);
+    lastSnarkIdx = idx;
+    return SNARK_MESSAGES[idx];
+  }
+
+  function showSnark() {
+    if (snarkTimeout) clearTimeout(snarkTimeout);
+    snarkMessage.textContent = pickSnark();
+    snarkToast.classList.add('visible');
+    snarkTimeout = setTimeout(() => {
+      snarkToast.classList.remove('visible');
+      snarkTimeout = null;
+    }, 5000);
+  }
+
+  // Click skull → instant roast
+  skullIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
+    showSnark();
+  });
+
+  // Close toast on click
+  snarkToast.addEventListener('click', () => {
+    snarkToast.classList.remove('visible');
+    if (snarkTimeout) { clearTimeout(snarkTimeout); snarkTimeout = null; }
+  });
+
+  // 30% chance of snark when adding a bill
+  const _origAddBill = addBill;
+  addBill = function () {
+    _origAddBill.apply(null, arguments);
+    if (Math.random() < 0.3) setTimeout(showSnark, 600);
+  };
+
+  // Show one on page load after a random 3-6s delay
+  setTimeout(showSnark, 3000 + Math.random() * 3000);
+
+  // Ambient snark every 60-120 seconds
+  (function ambientSnark() {
+    const delay = 60000 + Math.random() * 60000;
+    setTimeout(() => { showSnark(); ambientSnark(); }, delay);
+  })();
 
   // ---- Initial Render ----
   render();
