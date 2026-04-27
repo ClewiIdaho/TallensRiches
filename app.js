@@ -425,7 +425,8 @@
   function renderSummary() {
     const totalIncome = incomeEntries.reduce((s, e) => s + e.amount, 0);
     const totalBills  = billEntries.reduce((s, e) => s + e.amount, 0);
-    const remaining   = totalIncome - totalBills;
+    const paidBills   = billEntries.reduce((s, e) => s + (e.paid ? e.amount : 0), 0);
+    const remaining   = totalIncome - paidBills;
 
     totalIncEl.textContent = usd(totalIncome);
     totalBilEl.textContent = usd(totalBills);
