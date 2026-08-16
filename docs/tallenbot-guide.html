@@ -1,0 +1,430 @@
+<title>TallenBot Field Manual</title>
+<style>
+  :root {
+    --ground:    #0d0c11;
+    --surface:   #17151d;
+    --surface-2: #1f1c28;
+    --line:      #2c2836;
+    --purple:    #9b5cff;
+    --purple-dim:#7a3fe0;
+    --bone:      #f2f0f5;
+    --dim:       #9a95a8;
+    --dimmer:    #6f6a7d;
+    --green:     #3de8a0;
+    --red:       #ff4f6e;
+
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--bone);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 3rem 1.25rem 5rem;
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--purple);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 8vw, 2.9rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    text-wrap: balance;
+  }
+
+  h1 .skull { color: var(--purple); }
+
+  .standfirst {
+    margin: 0;
+    color: var(--dim);
+    font-size: 1.05rem;
+    text-wrap: pretty;
+  }
+
+  /* ---------- Sections ---------- */
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 2.75rem;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  p { margin: 0; text-wrap: pretty; }
+
+  .note { color: var(--dim); font-size: 0.95rem; }
+
+  strong { color: var(--bone); font-weight: 650; }
+
+  /* ---------- Platform cards ---------- */
+  .platforms {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .platform {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.25rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .platform h3 {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* Ordered steps &mdash; the only numbered device on the page,
+     because setup is genuinely a sequence. */
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  ol li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 2.35rem;
+    min-height: 1.6rem;
+  }
+
+  ol li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    width: 1.6rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--purple);
+    background: rgba(155, 92, 255, 0.12);
+    border: 1px solid rgba(155, 92, 255, 0.3);
+    border-radius: 6px;
+    text-align: center;
+    line-height: 1.5rem;
+    height: 1.6rem;
+  }
+
+  /* ---------- Notification mockups ---------- */
+  .mocks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .mock {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: 0.8rem;
+    align-items: start;
+  }
+
+  .mock-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 9px;
+    background: linear-gradient(150deg, #3a2b56, #14121b);
+    border: 1px solid rgba(155, 92, 255, 0.35);
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    color: var(--bone);
+  }
+
+  .mock-meta {
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .mock-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-top: 0.15rem;
+  }
+
+  .mock-body {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--dim);
+    margin-top: 0.1rem;
+  }
+
+  .mock-when {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-top: 0.5rem;
+  }
+
+  /* ---------- Settings list ---------- */
+  dl {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  dt {
+    font-weight: 700;
+    font-size: 0.98rem;
+  }
+
+  dd {
+    margin: 0.15rem 0 0;
+    color: var(--dim);
+    font-size: 0.95rem;
+  }
+
+  /* ---------- Callout ---------- */
+  .callout {
+    background: rgba(255, 79, 110, 0.07);
+    border: 1px solid rgba(255, 79, 110, 0.25);
+    border-radius: 14px;
+    padding: 1.15rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .callout h2 { font-size: 1.1rem; color: var(--red); }
+
+  .callout p { font-size: 0.95rem; color: var(--dim); }
+
+  /* ---------- Link ---------- */
+  a {
+    color: var(--purple);
+    text-decoration-color: rgba(155, 92, 255, 0.4);
+    text-underline-offset: 3px;
+  }
+  a:hover { color: var(--bone); }
+  a:focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  .url {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    word-break: break-all;
+  }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">Tallens Riches</div>
+    <h1><span class="skull">&#9760;</span> TallenBot Field Manual</h1>
+    <p class="standfirst">Your bill tracker can text you now. It is not nice about it.</p>
+  </header>
+
+  <section>
+    <h2>What changed</h2>
+    <p>Tallens Riches used to just sit there in a browser tab until you remembered it existed. Now it installs on your phone like a real app, and TallenBot sends you <strong>one notification a day</strong> about whatever bill is closest to eating you.</p>
+    <p class="note">One a day. Not one per bill. If four things are due, you get one message about all four.</p>
+  </section>
+
+  <section>
+    <h2>Put it on your phone</h2>
+    <p class="note">This part matters. Notifications only work once the app is on your home screen &mdash; especially on iPhone, where they will not work at all until you do this.</p>
+
+    <div class="platforms">
+      <div class="platform">
+        <h3>iPhone</h3>
+        <ol>
+          <li>Open the app in <strong>Safari</strong> (not Chrome &mdash; Safari specifically).</li>
+          <li>Tap the <strong>Share</strong> button, the square with the arrow coming out of it.</li>
+          <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+          <li>Open it from that new skull icon from now on, not from Safari.</li>
+        </ol>
+      </div>
+
+      <div class="platform">
+        <h3>Android</h3>
+        <ol>
+          <li>Open the app in <strong>Chrome</strong>.</li>
+          <li>Tap <strong>Install App</strong> when it offers, or use the menu &rarr; <strong>Install app</strong>.</li>
+          <li>Open it from the new skull icon on your home screen.</li>
+        </ol>
+      </div>
+    </div>
+
+    <p class="url"><a href="https://clidaho.github.io/TallensRiches/">clidaho.github.io/TallensRiches/</a></p>
+  </section>
+
+  <section>
+    <h2>Turn on the roasts</h2>
+    <ol>
+      <li>Tap <strong>Roasts</strong> (the bell) at the top of the app.</li>
+      <li>Tap <strong>Enable Roasts</strong>, then <strong>Allow</strong> when your phone asks.</li>
+      <li>TallenBot immediately sends a test one so you know it worked.</li>
+    </ol>
+    <p class="note">The bell turns purple and the panel says <strong>Armed</strong> when it is live.</p>
+  </section>
+
+  <section>
+    <h2>What actually shows up</h2>
+    <p class="note">Roughly a hundred of these. You will not see the same one twice for a while.</p>
+
+    <div class="mocks">
+      <div class="mock">
+        <div class="mock-icon">&#9760;</div>
+        <div>
+          <div class="mock-meta"><span>Tallens Riches</span><span>now</span></div>
+          <div class="mock-title">&#9760; Past Due, Tallen</div>
+          <div class="mock-body">Rent was due 5 days ago. You had one job, and it was not painting minis.</div>
+          <div class="mock-when">When a bill is late</div>
+        </div>
+      </div>
+
+      <div class="mock">
+        <div class="mock-icon">&#9760;</div>
+        <div>
+          <div class="mock-meta"><span>Tallens Riches</span><span>now</span></div>
+          <div class="mock-title">&#9760; Multiple Threats Detected</div>
+          <div class="mock-body">3 bills totaling $1,344.99. The Emperor demands tribute.</div>
+          <div class="mock-when">When several are stacking up</div>
+        </div>
+      </div>
+
+      <div class="mock">
+        <div class="mock-icon">&#9760;</div>
+        <div>
+          <div class="mock-meta"><span>Tallens Riches</span><span>now</span></div>
+          <div class="mock-title">&#9760; Remember Me?</div>
+          <div class="mock-body">You have not opened me in a while. 4 unpaid bills are waiting. So am I.</div>
+          <div class="mock-when">When you ignore the app for days</div>
+        </div>
+      </div>
+
+      <div class="mock">
+        <div class="mock-icon">&#9760;</div>
+        <div>
+          <div class="mock-meta"><span>Tallens Riches</span><span>now</span></div>
+          <div class="mock-title">&#9760; Incoming Bill</div>
+          <div class="mock-body">Internet hits in 2 days. $79.99. Start emotionally preparing.</div>
+          <div class="mock-when">A few days before something is due</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The four settings</h2>
+    <dl>
+      <div>
+        <dt>Daily roast time</dt>
+        <dd>What time of day it goes off. Defaults to 9:00 AM.</dd>
+      </div>
+      <div>
+        <dt>Warn me this many days ahead</dt>
+        <dd>How much warning you get before a due date. Defaults to 3 days. Set it to 0 if you only want to hear about things due today or already late.</dd>
+      </div>
+      <div>
+        <dt>Savage Mode</dt>
+        <dd>Unlocks the meaner pool. Your call. Ricky did not write these to be kind.</dd>
+      </div>
+      <div>
+        <dt>Good news too</dt>
+        <dd>Off by default. Turn it on and TallenBot will also tell you when nothing is due, which is the only time it is ever nice to you.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Making it stop</h2>
+    <p>Open <strong>Roasts</strong> and hit <strong>Pause Roasts</strong>. That is it &mdash; it shuts up immediately and keeps all your bills and settings. Hit it again whenever you want the abuse back.</p>
+  </section>
+
+  <section class="callout">
+    <h2>One honest catch, if you are on iPhone</h2>
+    <p>Apple does not let apps like this wake up on their own in the background. So on iPhone, TallenBot will reliably roast you <strong>when you open the app</strong> &mdash; including catching you up on anything you missed &mdash; but it cannot buzz you at 9 AM while your phone is in your pocket.</p>
+    <p>On Android it can, some of the time, once installed.</p>
+    <p>The skull icon sitting on your home screen is doing most of the reminding either way. That was the whole point.</p>
+  </section>
+
+  <section>
+    <h2>Everything else still works</h2>
+    <p>Bills, income, the paycheck breakdown, the paid/unpaid toggle, backups &mdash; all unchanged. Bonus: it now works with no signal at all, so you can check it in a parking garage.</p>
+    <p class="note">Your data still lives only on your phone. Nothing gets uploaded anywhere. Use <strong>Save Backup</strong> before you switch phones or you will lose it.</p>
+  </section>
+
+  <footer>Tallens Riches &middot; TallenBot v1</footer>
+
+</div>
