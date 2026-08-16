@@ -114,6 +114,7 @@
     renderBreakdown();
     renderSummary();
     persist();
+    notifyDataChanged();
   }
 
   function renderIncomeList() {
@@ -764,6 +765,28 @@
     const delay = 60000 + Math.random() * 60000;
     setTimeout(() => { showSnark(); ambientSnark(); }, delay);
   })();
+
+  // ---- Data Bridge (consumed by notifications.js) ----
+
+  const dataSubscribers = [];
+
+  function notifyDataChanged() {
+    dataSubscribers.forEach((fn) => {
+      try { fn(); } catch { /* a bad subscriber must not break rendering */ }
+    });
+  }
+
+  window.TallensRichesData = {
+    bills:  () => billEntries.slice(),
+    income: () => incomeEntries.slice(),
+    /** How far bills outrun income, or 0 when he is actually in the black. */
+    shortfall: () => {
+      const totalIncome = incomeEntries.reduce((s, e) => s + e.amount, 0);
+      const totalBills  = billEntries.reduce((s, e) => s + e.amount, 0);
+      return Math.max(totalBills - totalIncome, 0);
+    },
+    subscribe: (fn) => { if (typeof fn === 'function') dataSubscribers.push(fn); }
+  };
 
   // ---- Initial Render ----
   render();

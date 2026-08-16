@@ -197,7 +197,8 @@ body::before {
 select,
 input[type="text"],
 input[type="number"],
-input[type="date"] {
+input[type="date"],
+input[type="time"] {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--glass-border);
@@ -213,7 +214,8 @@ input[type="date"] {
 select:focus,
 input[type="text"]:focus,
 input[type="number"]:focus,
-input[type="date"]:focus {
+input[type="date"]:focus,
+input[type="time"]:focus {
   border-color: var(--purple);
   box-shadow: 0 0 8px var(--purple-soft);
 }
@@ -222,7 +224,8 @@ input::placeholder { color: var(--text-dim); }
 
 select option { background: #ffffff; color: #111111; }
 
-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.75); }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.75); }
 
 label {
   display: block;
@@ -1093,4 +1096,162 @@ label {
   .glass-panel:hover {
     box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 var(--glass-highlight);
   }
+}
+
+/* ============================================================
+   NOTIFICATIONS — Bell button + settings panel
+   ============================================================ */
+.btn-bell {
+  gap: 6px;
+  padding: 12px 16px;
+}
+
+.bell-glyph {
+  font-size: 1rem;
+  line-height: 1;
+  filter: grayscale(1) opacity(0.7);
+  transition: filter var(--transition), transform var(--transition);
+}
+
+.btn-bell:hover .bell-glyph { transform: rotate(-12deg); }
+
+/* Armed state — the bell earns its color */
+.btn-bell.notify-on {
+  border-color: var(--purple);
+  color: var(--text-primary);
+  box-shadow: 0 0 12px var(--purple-soft);
+}
+.btn-bell.notify-on .bell-glyph {
+  filter: none;
+  animation: bell-ring 5s ease infinite;
+}
+
+@keyframes bell-ring {
+  0%, 88%, 100% { transform: rotate(0deg); }
+  90%  { transform: rotate(-14deg); }
+  93%  { transform: rotate(12deg); }
+  96%  { transform: rotate(-7deg); }
+}
+
+.notify-modal { max-width: 440px; }
+
+.notify-modal h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notify-skull {
+  font-size: 1.2rem;
+  animation: skull-color 6s ease infinite;
+}
+
+.notify-status-row {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.notify-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border: 1px solid transparent;
+}
+
+.notify-status::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.notify-status.notify-on {
+  color: var(--green);
+  background: rgba(61,232,160,0.12);
+  border-color: rgba(61,232,160,0.28);
+}
+.notify-status.notify-warn {
+  color: var(--yellow);
+  background: rgba(255,203,71,0.12);
+  border-color: rgba(255,203,71,0.28);
+}
+.notify-status.notify-off {
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.05);
+  border-color: var(--glass-border);
+}
+
+.notify-hint {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.notify-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.notify-buttons .btn { flex: 1; min-width: 130px; }
+
+.notify-options {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Opt out of the global uppercase label treatment — these are sentences. */
+.notify-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 0;
+  font-size: 0.84rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.notify-toggle input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--purple);
+  cursor: pointer;
+}
+
+.notify-toggle strong { color: var(--text-primary); }
+
+.notify-options input[type="time"],
+.notify-options input[type="number"] {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .bell-label { display: none; }
+  .btn-bell { flex: 0 0 auto !important; padding: 12px 14px; }
+  .bell-glyph { font-size: 1.15rem; }
+  .notify-buttons .btn { min-width: 0; }
+}
+
+@media (max-width: 380px) {
+  .bell-label { display: inline; }
+  .btn-bell { flex: 1 1 auto !important; }
 }
